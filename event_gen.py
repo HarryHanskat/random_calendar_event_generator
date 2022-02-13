@@ -13,7 +13,6 @@ from prometheus_client import Summary
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-
 def main():
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
@@ -52,36 +51,43 @@ def main():
             print('No upcoming events found.')
             return
 
-        # Prints the start and name of the next 10 events
-        for event in events:
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            print(start, event['summary'])
+        '''# Prints the start and name of the next 10 events
+        # for event in events:
+        #     start = event['start'].get('dateTime', event['start'].get('date'))
+        #     print(start, event['summary'])
+        '''
         
-        create_test_event(service)
+        create_event(service, 'test')
+        create_reach_out_to_friend_event(service, 'friend')
 
     except HttpError as error:
         print('An error occurred: %s' % error)
 
-def create_test_event(service):
-    """
-    Creates a test event for the HH Calendar
-    """
-    # This calendarID is for my HH Calendar specifically, not my primary
-    # ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com
-    GMT_OFF = '-07:00' # PDT/MST/GMT-7
-    EVENT = {
-        'summary': 'Calendar event from API - visibility test',
-        'start': {'dateTime': '2022-02-13T18:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
-        'end': {'dateTime': '2022-02-13T19:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
-        'visibility': 'private',
-    }
+def create_reach_out_to_friend_event(service, type):
+    
 
+    EVENT = {}
+    pass
+
+def create_event(service, type):
+    if type == 'test':
+        """ Creates a test event for the HH Calendar """
+        # This calendarID is for my HH Calendar specifically, not my primary
+        # ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com
+        GMT_OFF = '-07:00' # PDT/MST/GMT-7
+        EVENT = {
+            'summary': 'Calendar event from API - visibility test',
+            'start': {'dateTime': '2022-02-13T18:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
+            'end': {'dateTime': '2022-02-13T19:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
+            'visibility': 'private',
+        }
     e = service.events().insert(calendarId='ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com', 
         body=EVENT).execute()
-
+    
     print('''*** %r event added:
-    Start: %s
-    End: %s''' % (e['summary'].encode('utf-8'), e['start']['dateTime'], e['end']['dateTime']))
+        Start: %s
+        End: %s''' % (e['summary'].encode('utf-8'), e['start']['dateTime'], e['end']['dateTime']))
+
 
 if __name__ == '__main__':
     main()
