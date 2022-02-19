@@ -36,6 +36,8 @@ def main():
             token.write(creds.to_json())
 
     try:
+        type = input('What type of event would you like to generate? friend or family?')
+
         service = build('calendar', 'v3', credentials=creds)
 
         # Call the Calendar API
@@ -56,31 +58,65 @@ def main():
         #     start = event['start'].get('dateTime', event['start'].get('date'))
         #     print(start, event['summary'])
         '''
-        
-        create_event(service, 'test')
-        create_reach_out_to_friend_event(service, 'friend')
+
+        create_event(service, type)
 
     except HttpError as error:
         print('An error occurred: %s' % error)
 
-def create_reach_out_to_friend_event(service, type):
-    
-
+def create_event_details(type):
     EVENT = {}
-    pass
-
-def create_event(service, type):
+    start, end = select_random_date(type)
+    GMT_OFF = '-07:00' # PDT/MST/GMT-7
     if type == 'test':
-        """ Creates a test event for the HH Calendar """
-        # This calendarID is for my HH Calendar specifically, not my primary
-        # ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com
-        GMT_OFF = '-07:00' # PDT/MST/GMT-7
         EVENT = {
             'summary': 'Calendar event from API - visibility test',
             'start': {'dateTime': '2022-02-13T18:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
             'end': {'dateTime': '2022-02-13T19:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
             'visibility': 'private',
         }
+    if type == 'friend':
+        EVENT = {
+            'summary': 'Reach out to a friend this week',
+            'start': start,
+            'end': end,
+            'visibility': 'private',
+        }
+    if type == 'family':
+        EVENT = {
+            'summary': 'Reach out to Jack or Parents this week',
+            'start': start,
+            'end': end,
+            'visibility': 'private',
+        }
+    return EVENT
+
+def select_random_date(type, start, end):
+    start = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+    {'dateTime': '2022-02-13T18:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
+    pass
+
+def create_event(service, type):
+    event = create_event_details(type)
+
+    if type == 'test':
+        """ Creates a test event for the HH Calendar """
+        # This calendarID is for my HH Calendar specifically, not my primary
+        # ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com
+        EVENT = event
+    elif type == 'friend':
+        EVENT = {
+            'summary': 'You should reach out to a friend',
+            'start': start,
+            'end': end,
+        }
+    elif type == 'family':
+        EVENT = {
+            'summary': 'You should reach out to Jack or the Parentals this week',
+            'start': start,
+            'end': end,
+        }
+
     e = service.events().insert(calendarId='ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com', 
         body=EVENT).execute()
     
