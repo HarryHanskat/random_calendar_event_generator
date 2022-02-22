@@ -78,7 +78,7 @@ def create_event(service, type):
 
 def create_event_details(type):
     EVENT = {}
-    start, end = select_random_date(type)
+    time = select_random_date(type)
     summary = 'blank'
 
     if type == 'test':
@@ -90,8 +90,8 @@ def create_event_details(type):
 
     EVENT = {
             'summary': summary,
-            'start': start,
-            'end': end,
+            'start': time,
+            'end': time,
             'visibility': 'private',
         }
     return EVENT
@@ -104,34 +104,23 @@ def select_random_date(type):
     # Need to take into account rollover into the next year
     if type == 'test':
         today = date.today()
-        today = str(today.replace(day=today.day + 1))
-        print('todays date', today)
-        start = {'date': today}
-        end = {'date': today}
     if type == 'friend':
-        time = date.today().replace(month=date.today().month+months_to_increment)
-        time = str(time)
-        start = {'date': time}
-        end = {'date': time}
         months_to_increment = 2
     if type == 'family':
         months_to_increment = 1
     if type == 'gift':
         months_to_increment = 3
 
-    # rand_day = random.randint(1, 28)
-    # rand_month = random.randint(1, months_to_increment)
+    rand_day = random.randint(1, 28)
+    rand_month = random.randint(1, months_to_increment)
 
-    # time = date.today().replace(day=rand_day)
-    # time = time.replace(month=time.month+rand_month)
-    # time = str(time)
+    time = date.today().replace(day=rand_day)
+    time = time.replace(month=time.month+rand_month)
+    time = str(time)
 
-    # print(time)
-
-    # start = time
-    # end = time
-
-    return start, end
+    return_time = {'date': time}
+    
+    return return_time
 
 
 if __name__ == '__main__':
