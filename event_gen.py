@@ -1,6 +1,8 @@
 from __future__ import print_function
 
+import random
 import datetime
+from datetime import date
 import os.path
 
 from google.auth.transport.requests import Request
@@ -64,65 +66,72 @@ def main():
     except HttpError as error:
         print('An error occurred: %s' % error)
 
+def create_event(service, type):
+    EVENT = create_event_details(type)
+    
+    e = service.events().insert(calendarId='ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com', 
+        body=EVENT).execute()
+    
+    print('''*** %r event added:
+        Start: %s
+        End: %s''' % (e['summary'].encode('utf-8'), e['start']['date'], e['end']['date']))
+
 def create_event_details(type):
     EVENT = {}
     start, end = select_random_date(type)
-    GMT_OFF = '-07:00' # PDT/MST/GMT-7
+    summary = 'blank'
+
     if type == 'test':
-        EVENT = {
-            'summary': 'Calendar event from API - visibility test',
-            'start': {'dateTime': '2022-02-13T18:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
-            'end': {'dateTime': '2022-02-13T19:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
-            'visibility': 'private',
-        }
+        summary = 'Just a test event'
     if type == 'friend':
-        EVENT = {
-            'summary': 'Reach out to a friend this week',
-            'start': start,
-            'end': end,
-            'visibility': 'private',
-        }
+        summary = 'You should reach out to a friend'
     if type == 'family':
-        EVENT = {
-            'summary': 'Reach out to Jack or Parents this week',
+        summary ='Reach out to Jack or Parents this week',
+
+    EVENT = {
+            'summary': summary,
             'start': start,
             'end': end,
             'visibility': 'private',
         }
     return EVENT
 
-def select_random_date(type, start, end):
-    start = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-    {'dateTime': '2022-02-13T18:00:00%s' % GMT_OFF, 'timeZone': 'America/Chicago'},
-    pass
+def select_random_date(type):
+    #Change this to just increment a certain amount of months based on what type of event, 
+    #then apply that to the start date
+    months_to_increment = 1
 
-def create_event(service, type):
-    event = create_event_details(type)
-
+    # Need to take into account rollover into the next year
     if type == 'test':
-        """ Creates a test event for the HH Calendar """
-        # This calendarID is for my HH Calendar specifically, not my primary
-        # ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com
-        EVENT = event
-    elif type == 'friend':
-        EVENT = {
-            'summary': 'You should reach out to a friend',
-            'start': start,
-            'end': end,
-        }
-    elif type == 'family':
-        EVENT = {
-            'summary': 'You should reach out to Jack or the Parentals this week',
-            'start': start,
-            'end': end,
-        }
+        today = date.today()
+        today = str(today.replace(day=today.day + 1))
+        print('todays date', today)
+        start = {'date': today}
+        end = {'date': today}
+    if type == 'friend':
+        time = date.today().replace(month=date.today().month+months_to_increment)
+        time = str(time)
+        start = {'date': time}
+        end = {'date': time}
+        months_to_increment = 2
+    if type == 'family':
+        months_to_increment = 1
+    if type == 'gift':
+        months_to_increment = 3
 
-    e = service.events().insert(calendarId='ip1f8ub1q7lrr8eppv8jd9cc4c@group.calendar.google.com', 
-        body=EVENT).execute()
-    
-    print('''*** %r event added:
-        Start: %s
-        End: %s''' % (e['summary'].encode('utf-8'), e['start']['dateTime'], e['end']['dateTime']))
+    # rand_day = random.randint(1, 28)
+    # rand_month = random.randint(1, months_to_increment)
+
+    # time = date.today().replace(day=rand_day)
+    # time = time.replace(month=time.month+rand_month)
+    # time = str(time)
+
+    # print(time)
+
+    # start = time
+    # end = time
+
+    return start, end
 
 
 if __name__ == '__main__':
