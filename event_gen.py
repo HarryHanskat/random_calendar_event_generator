@@ -4,6 +4,7 @@ import random
 import datetime
 from datetime import date
 import os.path
+import sys
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -15,7 +16,7 @@ from prometheus_client import Summary
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-def main():
+def main(args):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -38,7 +39,8 @@ def main():
             token.write(creds.to_json())
 
     try:
-        type = input('What type of event would you like to generate? friend or family?')
+        type = args[1]
+        print(type)
 
         service = build('calendar', 'v3', credentials=creds)
 
@@ -87,6 +89,8 @@ def create_event_details(type):
         summary = 'You should reach out to a friend'
     if type == 'family':
         summary ='Reach out to Jack or Parents this week',
+    if type == 'gift':
+        summary = 'Snag Nene a surprise gift',
 
     EVENT = {
             'summary': summary,
@@ -112,7 +116,7 @@ def select_random_date(type):
         months_to_increment = 3
 
     rand_day = random.randint(1, 28)
-    rand_month = random.randint(1, months_to_increment)
+    rand_month = random.randint(0, months_to_increment)
 
     time = date.today().replace(day=rand_day)
     time = time.replace(month=time.month+rand_month)
@@ -124,5 +128,5 @@ def select_random_date(type):
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
 
